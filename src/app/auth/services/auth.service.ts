@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { environment } from '../../../environments/environments';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { User, LoginResponse, CheckTokenResponse } from '../interfaces/';
+import { User, LoginResponse, CheckTokenResponse, RegisterResponse } from '../interfaces/';
 import { AuthStatus } from '../enum/auth-status.enum';
 
 @Injectable({
@@ -35,8 +35,18 @@ export class AuthService {
     const url = `${ this.baseUrl }/auth/login`;
     const body = { email, password };
 
-
     return this.http.post<LoginResponse>( url, body )
+      .pipe(
+        map( ({ user, token }) => this.setAuthentication( user, token ) ),
+        catchError( err =>  throwError( () => err.error.message))
+      );
+  }
+
+  register( name: string, email: string, password: string ) : Observable<boolean> {
+    const url = `${ this.baseUrl }/auth/register`;
+    const body = { name, email, password };
+
+    return this.http.post<RegisterResponse>( url, body )
       .pipe(
         map( ({ user, token }) => this.setAuthentication( user, token ) ),
         catchError( err =>  throwError( () => err.error.message))
@@ -70,4 +80,6 @@ export class AuthService {
     this._authStatus.set( AuthStatus.notAuthenticated );
     this._currentUser.set( null );
   }
+
+
 }

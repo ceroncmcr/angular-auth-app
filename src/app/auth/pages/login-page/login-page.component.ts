@@ -33,6 +33,5 @@ export class LoginPageComponent {
         }
       });
 
-    console.log( this.myForm.value );
   }
 }
